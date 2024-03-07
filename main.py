@@ -109,19 +109,23 @@ def process_query_endpoint():
     global work_flag
     work_flag.set() # setting the flag
     query = request.json['query']
-    process_query_thread(query)
+    result = customSearchEngine(query, num_results=10)
+    #process_query_thread(query)
     #work_flag.clear()  # Clear the event to False to indicate processing
-    return jsonify({"message": "Processing query..."})
+    return jsonify({"links": result})
 
-@app.route('/events')
-def events():
-    global work_flag
-    work_flag.wait()  # Wait until the event is set (True)
-    while work_flag.is_set() or data_queue:
-        if data_queue:
-            yield f"data: {json.dumps(data_queue.pop(0))}\n\n"
-        time.sleep(1)
-    yield "event: end"
+# @app.route('/events')
+# def events():
+#     global work_flag
+#     work_flag.wait()  # Wait until the event is set (True)
+#     def generate():
+#         global data_queue
+#         while work_flag.is_set() or data_queue:
+#             if data_queue:
+#                 yield f"data: {json.dumps(data_queue.pop(0))}\n\n"
+#             time.sleep(1)
+#         yield "event: end"
+#     return Response(generate(), content_type='text/event-stream')
     
 #curl 'http://192.168.1.10:5000/userintent' -d 'prompt=What is mental health?'
 if __name__ == '__main__':
