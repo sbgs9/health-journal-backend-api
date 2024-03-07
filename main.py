@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request, Response
+from flask_cors import CORS
 from huggingface_hub import InferenceClient
 import os
 from dotenv import load_dotenv
@@ -14,6 +15,7 @@ from resources import *
 
 load_dotenv()
 app = Flask(__name__)
+CORS(app)
 data_queue = []
 pdf_queue = []
 work_flag = threading.Event()
@@ -99,7 +101,8 @@ def user_intent():
     prompt = request.form.get('prompt')
     final_prompt = system_prompt + prompt
     data = client.text_generation(prompt=final_prompt)
-    return jsonify({'user_intent': data})
+    response = jsonify({'user_intent': data})
+    return response
 
 @app.route('/process_query', methods=['POST'])
 def process_query_endpoint():
